@@ -15,7 +15,7 @@
 #include "metainfo/metainfo-tests.h"
 #include "forwarder/forwarder-tests.h"
 #include "util/util-tests.h"
-#include "schematized-trust/trust-schema-tests.h"
+//#include "schematized-trust/trust-schema-tests.h"
 
 static char test_passed_string[] = "(passed) ";
 static char test_failed_string[] = "[FAILED]----------------------------------------------> ";
@@ -38,7 +38,7 @@ int main(void) {
   bool metainfo_tests_result = run_metainfo_tests();
   bool forwarder_tests_result = run_forwarder_tests();
   bool util_tests_result = run_util_tests();
-  bool schematized_trust_tests_result = run_trust_schema_tests();
+//  bool schematized_trust_tests_result = run_trust_schema_tests();
 
   printf("\n");
 
@@ -78,8 +78,8 @@ int main(void) {
   printf("%sforwarder_tests\n", result_string);
   result_string = util_tests_result ? test_passed_string : test_failed_string;
   printf("%sutil_tests\n", result_string);
-  result_string = schematized_trust_tests_result ? test_passed_string : test_failed_string;
-  printf("%sschematized_trust_tests\n", result_string);
+//  result_string = schematized_trust_tests_result ? test_passed_string : test_failed_string;
+//  printf("%sschematized_trust_tests\n", result_string);
 
   
   printf("\n");
@@ -97,8 +97,8 @@ int main(void) {
       random_tests_result &&
       metainfo_tests_result &&
       forwarder_tests_result &&
-      util_tests_result &&
-      schematized_trust_tests_result) {
+      util_tests_result) {
+//      schematized_trust_tests_result) {
     
       printf("ALL NDN-LITE OVER RIOT UNIT TESTS PASSED.\n");
       
