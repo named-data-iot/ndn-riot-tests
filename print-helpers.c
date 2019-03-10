@@ -1,6 +1,4 @@
-
 #include "print-helpers.h"
-
 #include <stdio.h>
 
 void print_hex(const char *msg, uint8_t *val, uint32_t val_len) {

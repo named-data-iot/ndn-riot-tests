@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Tianyuan Yu, Zhiyi Zhang, Edward Lu
  *
@@ -35,7 +34,7 @@ bool run_access_control_tests(void) {
   for (int i = 0; i < ACCESS_CONTROL_NUM_TESTS; i++) {
     _run_access_control_test(&access_control_tests[i]);
   }
-  
+
   return check_all_tests_passed(access_control_test_results, access_control_test_names,
                                 ACCESS_CONTROL_NUM_TESTS);
 }
@@ -46,7 +45,7 @@ void _run_access_control_test(access_control_test_t *test) {
   _all_function_calls_succeeded = true;
 
   int ret_val = -1;
-  
+
   // tests start
   ndn_security_init();
 
@@ -58,7 +57,7 @@ void _run_access_control_test(access_control_test_t *test) {
     print_error(_current_test_name, "_run_access_control_test", "ndn_name_from_string", ret_val);
     _all_function_calls_succeeded = false;
   }
-  
+
   // set shared prv and pub key
   ndn_key_storage_init();
   ndn_ecc_pub_t* pub_key = NULL;
@@ -76,7 +75,7 @@ void _run_access_control_test(access_control_test_t *test) {
     print_error(_current_test_name, "_run_access_control_test", "ndn_ecc_prv_init", ret_val);
     _all_function_calls_succeeded = false;
   }
-  
+
   // set producer, consumer and controller components and namesc
   char comp_producer[] = "producer";
   name_component_t component_producer;
@@ -122,7 +121,7 @@ void _run_access_control_test(access_control_test_t *test) {
     print_error(_current_test_name, "_run_access_control_test", "ndn_name_append_component", ret_val);
     _all_function_calls_succeeded = false;
   }
-  
+
   uint32_t key_id = 1234;
 
   //printf("finish the preparation\n");
@@ -147,7 +146,7 @@ void _run_access_control_test(access_control_test_t *test) {
   /*   printf("%02X", encoder.output_value[i]); */
   /* } */
   /* printf("\n"); */
-  
+
   // controller
   // set id and key
   ndn_ac_state_init(&controller_identity, pub_key, prv_key);
@@ -162,7 +161,7 @@ void _run_access_control_test(access_control_test_t *test) {
     _all_function_calls_succeeded = false;
   }
   encoder_init(&encoder, buffer, sizeof(buffer));
-  
+
   //printf("***Controller react on EK request***\n");
   ret_val = ndn_ac_on_interest_process(&response, &interest);
   if (ret_val != 0) {
@@ -183,7 +182,7 @@ void _run_access_control_test(access_control_test_t *test) {
   /*   printf("%02X", encoder.output_value[i]); */
   /* } */
   /* printf("\n"); */
-  
+
   //printf("EK Response TLV size is = %d\n", encoder.offset);
   ret_val = ndn_data_tlv_decode_ecdsa_verify(&response, buffer, encoder.offset,
                                        pub_key);
@@ -194,7 +193,7 @@ void _run_access_control_test(access_control_test_t *test) {
   //printf("***Encryptor react on EK response***\n");
   ret_val = ndn_ac_on_ek_response_process(&response);
   if (ret_val != 0) {
-    print_error(_current_test_name, "_run_access_control_test", "ndn_name_from_string", ret_val);
+    print_error(_current_test_name, "_run_access_control_test", "ndn_ac_on_ek_response", ret_val);
     _all_function_calls_succeeded = false;
   }
 
@@ -207,7 +206,7 @@ void _run_access_control_test(access_control_test_t *test) {
     print_error(_current_test_name, "_run_access_control_test", "ndn_ac_prepare_key_request", ret_val);
     _all_function_calls_succeeded = false;
   }
-  
+
   // controller receives dk request
   //printf("***Controller react on DK request***\n");
   ndn_interest_from_block(&interest, buffer, encoder.offset);

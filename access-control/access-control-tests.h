@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Tianyuan Yu, Zhiyi Zhang, Edward Lu
  *

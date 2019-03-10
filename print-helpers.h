@@ -1,4 +1,3 @@
-
 #ifndef PRINT_HELPERS_H
 #define PRINT_HELPERS_H
 
