@@ -70,6 +70,7 @@ typedef struct ndn_msg{
 } ndn_msg_t_back;
 char buf[8192];
 bool ret;
+uint32_t ulret = 0;
 
 void msgproc(void *self, size_t param_length, void *param) {
   if(strlen((char*)param) != param_length){
@@ -85,6 +86,11 @@ void msgproc(void *self, size_t param_length, void *param) {
 
 void dummy_msgproc(void *self, size_t param_length, void *param){
   ret = true;
+}
+
+void add_msgproc(void *self, size_t param_length, void *param){
+  ulret += *(uint32_t*)param;
+  ndn_msgqueue_post(self, add_msgproc, sizeof(uint32_t), &ulret);
 }
 
 bool _run_msg_queue_test(){
@@ -166,6 +172,26 @@ bool _run_msg_queue_test(){
   ndn_msgqueue_dispatch();
   ret = ndn_msgqueue_post(&ret, dummy_msgproc, 4095 - sz, buf);
   test_assert(ret == true);
+
+  // Process one round
+  ndn_msgqueue_init();
+  ret = ndn_msgqueue_post(&ret, dummy_msgproc, 0, NULL);
+  test_assert(ret == true);
+  *(uint32_t*)buf = 1;
+  ret = ndn_msgqueue_post(&ret, add_msgproc, sizeof(uint32_t), buf);
+  test_assert(ret == true);
+  ret = ndn_msgqueue_post(&ret, dummy_msgproc, 0, NULL);
+  test_assert(ret == true);
+  ret = false;
+  ndn_msgqueue_process();
+  test_assert(ret == true);
+  test_assert(ulret == 1);
+  ndn_msgqueue_process();
+  test_assert(ulret == 2);
+  ndn_msgqueue_process();
+  test_assert(ulret == 4);
+  ndn_msgqueue_process();
+  test_assert(ulret == 8);
 
   return true;
 }
