@@ -22,7 +22,6 @@
 #include "ndn-lite/encode/interest.h"
 #include "ndn-lite/encode/data.h"
 #include "ndn-lite/forwarder/forwarder.h"
-#include "ndn-lite/face/direct-face.h"
 #include "ndn-lite/face/dummy-face.h"
 
 // five seconds
@@ -44,8 +43,8 @@ static struct timeval _current_time;
 static uint32_t _current_forwarder_test_start_time_u_secs;
 static uint32_t _current_time_u_secs;
 
-int
-on_data_callback(const uint8_t* data, uint32_t data_size)
+void
+on_data_callback(const uint8_t* data, uint32_t data_size, void* userdata)
 {
   //printf("application receives a Data\n");
   ndn_data_t data_check;
@@ -74,22 +73,21 @@ on_data_callback(const uint8_t* data, uint32_t data_size)
     _current_forwarder_test_app_received_data = false;
     _current_forwarder_test = NULL;
   }
-  return 0;
+}
+
+void
+on_interest_timeout_callback(void* userdata)
+{
+  (void)userdata;
+  printf("On Time Out\n");
 }
 
 int
-on_interest_timeout_callback(const uint8_t* interest, uint32_t interest_size)
+on_interest(const uint8_t* interest, uint32_t interest_size, void* userdata)
 {
   (void)interest;
   (void)interest_size;
-  return 0;
-}
-
-int
-on_interest(const uint8_t* interest, uint32_t interest_size)
-{
-  (void)interest;
-  (void)interest_size;
+  (void)userdata;
   //printf("application receives an Interest\n");
   _current_forwarder_test_app_received_interest = true;
   return 0;
@@ -153,10 +151,10 @@ void _run_forwarder_test(forwarder_test_t *test) {
   _forwarder_test_raw_pub_key_arr_len = test->pub_key_raw_len;
   
   // tests start
-  ndn_forwarder_t* forwarder = ndn_forwarder_init();
-  ndn_direct_face_t* direct_face = ndn_direct_face_construct(124);
-  ndn_dummy_face_t dummy_face;
-  ndn_dummy_face_construct(&dummy_face, 125);
+  ndn_forwarder_init();
+  
+  ndn_dummy_face_t* dummy_face;
+  dummy_face = ndn_dummy_face_construct();
 
   // add FIB entry
   //printf("\n***Add dummy face to FIB with prefix /aaa***\n");
@@ -167,7 +165,11 @@ void _run_forwarder_test(forwarder_test_t *test) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_name_from_string", ret_val);
   }
-  ret_val = ndn_forwarder_fib_insert(&prefix, &dummy_face.intf, 1);
+  uint8_t tmp_name_buf[256] = {0};
+  ndn_encoder_t tmp_name_encoder;
+  encoder_init(&tmp_name_encoder, tmp_name_buf, 256);
+  ndn_name_tlv_encode(&tmp_name_encoder, &prefix);
+  ndn_forwarder_add_route(&dummy_face->intf, tmp_name_buf, tmp_name_encoder.offset);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_forwarder_fib_insert", ret_val);
@@ -193,9 +195,12 @@ void _run_forwarder_test(forwarder_test_t *test) {
 
   // express Interest
   //printf("\n***Express Interest /aaa/bbb/ccc/ddd***\n");
-  ret_val = ndn_direct_face_express_interest(&interest.name,
-                                   interest_block, encoder.offset,
-                                   on_data_callback, on_interest_timeout_callback);
+  ret_val = ndn_forwarder_express_interest(
+    interest_block,
+    encoder.offset,
+    on_data_callback,
+    on_interest_timeout_callback,
+    NULL);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_direct_face_express_interest", ret_val);
@@ -210,7 +215,9 @@ void _run_forwarder_test(forwarder_test_t *test) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_name_from_string", ret_val);
   }
-  ret_val = ndn_direct_face_register_prefix(&prefix2, on_interest);
+  encoder_init(&tmp_name_encoder, tmp_name_buf, 256);
+  ndn_name_tlv_encode(&tmp_name_encoder, &prefix2);
+  ret_val = ndn_forwarder_register_prefix(tmp_name_buf, tmp_name_encoder.offset, on_interest, NULL);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_direct_face_register_prefix", ret_val);
@@ -230,7 +237,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
     print_error(_current_test_name, "_run_forwarder_test", "ndn_interest_tlv_encode", ret_val);
   }
   //printf("\n***Dummy Face receives an Interest /aaa/bbb/ccc/ddd***\n");
-  ret_val = ndn_face_receive(&dummy_face.intf, interest_block, encoder.offset);
+  ret_val = ndn_forwarder_receive(&dummy_face->intf, interest_block, encoder.offset);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_face_receive", ret_val);
@@ -275,14 +282,11 @@ void _run_forwarder_test(forwarder_test_t *test) {
 
   // receive the Data packet
   //printf("\n***Dummy Face receives an Data /aaa/bbb/ccc/ddd***\n");
-  ret_val = ndn_face_receive(&dummy_face.intf, block_value, encoder.offset);
+  ret_val = ndn_forwarder_receive(&dummy_face->intf, block_value, encoder.offset);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_face_receive", ret_val);
   }
-  
-  (void)forwarder;
-  (void)direct_face;
 
   // spin until current_forwarder_test is equal to NULL (which means that
   // the current forwarder test has finished) OR until test has passed the
