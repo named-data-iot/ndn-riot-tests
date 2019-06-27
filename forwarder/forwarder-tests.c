@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2018 Zhiyi Zhang, Tianyuan Yu, Edward
  *
@@ -6,7 +5,6 @@
  * General Public License v2.1. See the file LICENSE in the top level
  * directory for more details.
  */
-
 #include "forwarder-tests.h"
 
 #include <stdio.h>
@@ -62,7 +60,7 @@ on_data_callback(const uint8_t* data, uint32_t data_size, void* userdata)
   /*   printf("%02X", data[i]); */
   /* } */
   /* printf("\n"); */
-  
+
   result = ndn_data_tlv_decode_ecdsa_verify(&data_check, data, data_size, &pub_key);
   if (result == 0) {
     _current_forwarder_test_app_received_data = true;
@@ -100,27 +98,26 @@ bool run_forwarder_tests(void) {
   for (int i = 0; i < FORWARDER_NUM_TESTS; i++) {
     _run_forwarder_test(&forwarder_tests[i]);
   }
-  
+
   // spin until current_forwarder_test is set to NULL, meaning that the last
   // forwarder test has completed
   while (_current_forwarder_test != NULL) {}
-  
+
   return check_all_tests_passed(forwarder_test_results, forwarder_test_names,
                                 FORWARDER_NUM_TESTS);
 }
 
-void _run_forwarder_test(forwarder_test_t *test) {
-
+void
+_run_forwarder_test(forwarder_test_t *test)
+{
   _current_test_name = test->test_names[test->test_name_index];
-  
   int ret_val = -1;
-  
   ndn_security_init();
 
   _current_forwarder_test_app_received_interest = false;
   _current_forwarder_test_app_received_data = false;
   _current_forwarder_test_all_calls_succeeded = true;
-  
+
   ret_val = gettimeofday(&_current_forwarder_test_start_time, NULL);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
@@ -129,7 +126,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
 
   _current_forwarder_test_start_time_u_secs = _current_forwarder_test_start_time.tv_sec * MICROSECONDS_PER_SECOND +
                                               _current_forwarder_test_start_time.tv_usec;
-  
+
   // The forwarder unit test model
   /*
    *  +----+       +---------+     +------------+
@@ -145,14 +142,14 @@ void _run_forwarder_test(forwarder_test_t *test) {
   // either this is the first forwarder test, or any previous forwarder tests
   // finished
   while (_current_forwarder_test != NULL) {}
-  
+
   _current_forwarder_test = test;
   memcpy(_forwarder_test_raw_pub_key_arr, test->pub_key_raw_val, test->pub_key_raw_len);
   _forwarder_test_raw_pub_key_arr_len = test->pub_key_raw_len;
-  
+
   // tests start
   ndn_forwarder_init();
-  
+
   ndn_dummy_face_t* dummy_face;
   dummy_face = ndn_dummy_face_construct();
 
@@ -230,6 +227,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_name_from_string", ret_val);
   }
+  memset(interest_block, 0, 256);
   encoder_init(&encoder, interest_block, 256);
   ret_val = ndn_interest_tlv_encode(&encoder, &interest);
   if (ret_val != 0) {
@@ -240,7 +238,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
   ret_val = ndn_forwarder_receive(&dummy_face->intf, interest_block, encoder.offset);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
-    print_error(_current_test_name, "_run_forwarder_test", "ndn_face_receive", ret_val);
+    print_error(_current_test_name, "_run_forwarder_test", "ndn_forwarder_receive", ret_val);
   }
 
   // prepare Data content and Data packet
@@ -252,7 +250,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
     _current_forwarder_test_all_calls_succeeded = false;
     print_error(_current_test_name, "_run_forwarder_test", "ndn_data_set_content", ret_val);
   }
-  
+
   // set name, metainfo
   char data_name_string[] = "/aaa/bbb/ccc/ddd";
   ret_val = ndn_name_from_string(&data.name, data_name_string, sizeof(data_name_string));
@@ -285,7 +283,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
   ret_val = ndn_forwarder_receive(&dummy_face->intf, block_value, encoder.offset);
   if (ret_val != 0) {
     _current_forwarder_test_all_calls_succeeded = false;
-    print_error(_current_test_name, "_run_forwarder_test", "ndn_face_receive", ret_val);
+    print_error(_current_test_name, "_run_forwarder_test", "ndn_forwarder_receive", ret_val);
   }
 
   // spin until current_forwarder_test is equal to NULL (which means that
@@ -295,7 +293,7 @@ void _run_forwarder_test(forwarder_test_t *test) {
     ret_val = gettimeofday(&_current_time, NULL);
 
     _current_time_u_secs = _current_time.tv_sec * MICROSECONDS_PER_SECOND + _current_time.tv_usec;
-    
+
     if (ret_val != 0) {
       _current_forwarder_test_all_calls_succeeded = false;
       print_error(_current_test_name, "_run_forwarder_test", "gettimeofday for _current_time", ret_val);

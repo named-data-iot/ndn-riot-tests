@@ -133,8 +133,8 @@ void _run_access_control_test(access_control_test_t *test) {
   //printf("***Encryptor prepare EK request***\n");
   ndn_encoder_t encoder;
   encoder_init(&encoder, buffer, sizeof(buffer));
-  ret_val = ndn_ac_prepare_key_request_interest(&encoder,
-                                      &home_prefix, &component_producer, key_id, prv_key, 1);
+  ret_val = ndn_ac_prepare_key_request_interest(&encoder, &home_prefix,
+                                                &component_producer, key_id, prv_key, 1);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_access_control_test", "ndn_ac_prepare_key_request", ret_val);
     _all_function_calls_succeeded = false;
@@ -152,7 +152,7 @@ void _run_access_control_test(access_control_test_t *test) {
   ndn_ac_state_init(&controller_identity, pub_key, prv_key);
   ret_val = ndn_interest_from_block(&interest, buffer, encoder.offset);
   if (ret_val != 0) {
-    print_error(_current_test_name, "_run_access_control_test", "ndn_signed_interest_ecdsa_verify", ret_val);
+    print_error(_current_test_name, "_run_access_control_test", "ndn_interest_from_block", ret_val);
     _all_function_calls_succeeded = false;
   }
   ret_val = ndn_signed_interest_ecdsa_verify(&interest, pub_key);

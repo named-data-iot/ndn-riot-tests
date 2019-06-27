@@ -1,6 +1,4 @@
-
 #include <stdio.h>
-
 #include "aes/aes-tests.h"
 #include "service-discovery/service-discovery-tests.h"
 #include "name-encode-decode/name-encode-decode-tests.h"
@@ -45,11 +43,10 @@ int main(void) {
   printf("--------------------------------------------------------------------------------------\n");
   printf("\n");
 
-  
   const char* result_string;
-  
+
   printf("RESULTS OF TESTS:\n\n");
-  
+
   result_string = aes_tests_result ? test_passed_string : test_failed_string;
   printf("%saes_tests\n", result_string);
   result_string = service_discovery_tests_result ? test_passed_string : test_failed_string;
@@ -81,7 +78,6 @@ int main(void) {
   result_string = schematized_trust_tests_result ? test_passed_string : test_failed_string;
   printf("%sschematized_trust_tests\n", result_string);
 
-  
   printf("\n");
 
   if (aes_tests_result &&
@@ -99,14 +95,9 @@ int main(void) {
       forwarder_tests_result &&
       util_tests_result &&
       schematized_trust_tests_result) {
-    
       printf("ALL NDN-LITE OVER RIOT UNIT TESTS PASSED.\n");
-      
   }
   else {
-    
     printf("ONE OR MORE NDN_LITE OVER RIOT UNIT TESTS FAILED.\n");
-    
   }
-  
 }
