@@ -84,34 +84,11 @@ void _run_name_encode_decode_test(name_encode_decode_test_t *test) {
   }
 
   // name initialization
-  char comp2[] = "bbbbbb";
-  char comp3[] = "cccccc";
-  char comp4[] = "123456";
-  name_component_t component2;
-  ret_val = name_component_from_string(&component2, comp2, sizeof(comp2));
-  if (ret_val != 0) {
-    print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_from_string", ret_val);
-    _all_function_calls_succeeded = false;
-  }
-  name_component_t component3;
-  ret_val = name_component_from_string(&component3, comp3, sizeof(comp3));
-  if (ret_val != 0) {
-    print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_from_string", ret_val);
-    _all_function_calls_succeeded = false;
-  }
-  name_component_t component4;
-  ret_val = name_component_from_string(&component4, comp4, sizeof(comp4));
-  if (ret_val != 0) {
-    print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_tlv_encode", ret_val);
-    _all_function_calls_succeeded = false;
-  }
-  name_component_t components[3];
-  components[0] = component;
-  components[1] = component2;
-  components[2] = component3;
-
   ndn_name_t name;
-  ndn_name_init(&name, components, 3);
+  ndn_name_init(&name);
+  ndn_name_append_string_component(&name, "bbbbbb", strlen("bbbbbb"));
+  ndn_name_append_string_component(&name, "cccccc", strlen("cccccc"));
+  ndn_name_append_string_component(&name, "123456", strlen("123456"));
   printf("\n***name init***\ncheck name comp size %u\n", name.components_size);
   for (size_t i = 0; i < name.components_size; i++) {
     printf("comp type %u\n", (unsigned int) name.components[i].type);
@@ -122,7 +99,8 @@ void _run_name_encode_decode_test(name_encode_decode_test_t *test) {
   }
 
   // name append
-  ret_val = ndn_name_append_component(&name, &component4);
+  uint32_t temp = 123;
+  ret_val = ndn_name_append_bytes_component(&name, (uint8_t*)&temp, sizeof(uint32_t));
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_name_encode_decode_test", "ndn_name_append_component", ret_val);
     _all_function_calls_succeeded = false;

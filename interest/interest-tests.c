@@ -142,6 +142,13 @@ void _test_unsigned_interest(ndn_name_t* name)
     }
     printf("\n");
   }
+  bool must_be_fresh = ndn_interest_get_MustBeFresh(&check_interest);
+  bool can_be_prefix = ndn_interest_get_CanBePrefix(&check_interest);
+  bool has_hoplimit = ndn_interest_has_HopLimit(&check_interest);
+  if (!must_be_fresh || !can_be_prefix || !has_hoplimit) {
+    print_error(_current_test_name, "_test_unsigned_interest", "ndn_interest_get_MustBeFresh", ret_val);
+    _all_function_calls_succeeded = false;
+  }
 }
 
 void _test_ecdsa_signed_interest(ndn_name_t* name, ndn_name_t* identity, interest_test_t *test)
@@ -196,6 +203,13 @@ void _test_ecdsa_signed_interest(ndn_name_t* name, ndn_name_t* identity, interes
   ret_val = ndn_interest_from_block(&check_interest, pool, encoder.offset);
   if (ret_val != 0) {
     print_error(_current_test_name, "_test_ecdsa_signed_interest", "ndn_interest_from_block", ret_val);
+    _all_function_calls_succeeded = false;
+  }
+  bool must_be_fresh = ndn_interest_get_MustBeFresh(&check_interest);
+  bool can_be_prefix = ndn_interest_get_CanBePrefix(&check_interest);
+  bool has_hoplimit = ndn_interest_has_HopLimit(&check_interest);
+  if (!must_be_fresh || !can_be_prefix || !has_hoplimit) {
+    print_error(_current_test_name, "_test_unsigned_interest", "ndn_interest_get_MustBeFresh", ret_val);
     _all_function_calls_succeeded = false;
   }
   ret_val = ndn_signed_interest_ecdsa_verify(&check_interest, &pub_key);
