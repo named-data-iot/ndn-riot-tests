@@ -8,8 +8,8 @@ DIRS += access-control aes forwarder random data interest name-encode-decode ser
 # If no BOARD is found in the environment, use this default:
 BOARD ?= native
 
-USEMODULE += access-control-tests sign-verify-tests aes-tests forwarder-tests random-tests data-tests interest-tests name-encode-decode-tests fragmentation-support-tests metainfo-tests signature-tests encoder-decoder-tests hmac-sign-verify-tests ecdsa-sign-verify-tests sha256-sign-verify-tests asn-encode-decode-tests schematized-trust-tests fake-adaptation
-# removed service-discovery-tests
+USEMODULE += sign-verify-tests aes-tests forwarder-tests random-tests data-tests interest-tests name-encode-decode-tests fragmentation-support-tests metainfo-tests signature-tests encoder-decoder-tests hmac-sign-verify-tests ecdsa-sign-verify-tests sha256-sign-verify-tests asn-encode-decode-tests schematized-trust-tests fake-adaptation
+# removed temporarily for protocol update: service-discovery-tests access-control-tests
 
 BOARD_INSUFFICIENT_MEMORY := airfy-beacon chronos msb-430 msb-430h nrf51dongle \
                           nrf6310 nucleo-f103 nucleo-f334 pca10000 pca10005 spark-core \
