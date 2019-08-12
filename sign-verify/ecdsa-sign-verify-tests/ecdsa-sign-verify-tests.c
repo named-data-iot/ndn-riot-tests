@@ -56,7 +56,7 @@ void _run_ecdsa_sign_verify_test(ecdsa_sign_verify_test_t *test) {
 
   _current_test_name = test->test_names[test->test_name_index];
   _all_function_calls_succeeded = true;
-  
+
   ndn_security_init();
 
   int ret_val = -1;
@@ -69,16 +69,13 @@ void _run_ecdsa_sign_verify_test(ecdsa_sign_verify_test_t *test) {
   }
 
   uint32_t signature_size;
-  ret_val = ndn_ecdsa_sign(test_message, sizeof(test_message),
-			   test_signature, sizeof(test_signature),
-			   &test_ecc_prv_key,
-			   test->ndn_ecdsa_curve,
-			   &signature_size);
+  ret_val = ndn_ecdsa_sign(test_message, sizeof(test_message), test_signature, sizeof(test_signature),
+			                     &test_ecc_prv_key, &signature_size);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_ecdsa_sign_verify_test", "ndn_ecdsa_sign", ret_val);
     _all_function_calls_succeeded = false;
   }
-  
+
   ret_val = ndn_ecc_pub_init(&test_ecc_pub_key, test->ecc_pub_raw, test->ecc_pub_raw_len,
       test->ndn_ecdsa_curve, test_arbitrary_key_id);
   if (ret_val != 0) {
@@ -86,10 +83,8 @@ void _run_ecdsa_sign_verify_test(ecdsa_sign_verify_test_t *test) {
     _all_function_calls_succeeded = false;
   }
 
-  ret_val = ndn_ecdsa_verify(test_message, sizeof(test_message),
-			     test_signature, signature_size,
-			     &test_ecc_pub_key,
-			     test->ndn_ecdsa_curve);
+  ret_val = ndn_ecdsa_verify(test_message, sizeof(test_message), test_signature, signature_size,
+			                       &test_ecc_pub_key);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_ecdsa_sign_verify_test", "ndn_ecdsa_verify", ret_val);
     _all_function_calls_succeeded = false;
@@ -101,5 +96,5 @@ void _run_ecdsa_sign_verify_test(ecdsa_sign_verify_test_t *test) {
     printf("One or more function calls within _run_ecdsa_sign_verify_test failed.\n");
     *test->passed = false;
   }
-  
+
 }

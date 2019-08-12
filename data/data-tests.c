@@ -103,7 +103,7 @@ void _run_data_test(data_test_t *test) {
   /* printf("\n"); */
 
   ndn_data_t data_check;
-  ret_val = ndn_data_tlv_decode_no_verify(&data_check, block_value, encoder.offset);
+  ret_val = ndn_data_tlv_decode_no_verify(&data_check, block_value, encoder.offset, NULL, NULL);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_data_test", "ndn_data_tlv_decode_no_verify", ret_val);
     _all_function_calls_succeeded = false;
