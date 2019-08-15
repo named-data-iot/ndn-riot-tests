@@ -30,16 +30,16 @@ bool run_random_tests(void) {
   for (int i = 0; i < RANDOM_NUM_TESTS; i++) {
     _run_random_test(&random_tests[i]);
   }
-  
+
   return check_all_tests_passed(random_test_results, random_test_names,
                                 RANDOM_NUM_TESTS);
 }
 
 void _run_random_test(random_test_t *test) {
-  
+
   _current_test_name = test->test_names[test->test_name_index];
   _all_function_calls_succeeded = true;
- 
+
   int ret_val = -1;
 
   ndn_security_init();
@@ -52,16 +52,16 @@ void _run_random_test(random_test_t *test) {
   memcpy(salt, test->ecc_pub_key_val, sizeof(salt));
 
   ret_val = ndn_hkdf(shared, sizeof(shared), tsk, sizeof(tsk),
-	   salt, sizeof(salt));
+	                   salt, sizeof(salt), NULL, 0);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_random_test", "ndn_hkdf", ret_val);
     _all_function_calls_succeeded = false;
   }
   printf("HMAC key generation\n");
   uint8_t i = 0;
-  while (i < sizeof(tsk)){
+  while (i < sizeof(tsk)) {
     printf("0x%02x ", tsk[i++]);
-  }puts("\n");
+  } puts("\n");
 
   uint8_t *personalization = (uint8_t*)"ndn-iot-access-control";
   uint8_t *additional_input = (uint8_t*)"additional-input";
@@ -79,7 +79,7 @@ void _run_random_test(random_test_t *test) {
   while (j < sizeof(salt)){
     printf("0x%02x ", salt[j++]);
   }
-  
+
   if (_all_function_calls_succeeded)
   {
     *test->passed = true;
@@ -88,5 +88,5 @@ void _run_random_test(random_test_t *test) {
     printf("In _run_random_test, something went wrong.\n");
     *test->passed = false;
   }
-  
+
 }

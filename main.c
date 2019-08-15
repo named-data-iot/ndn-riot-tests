@@ -14,6 +14,7 @@
 #include "forwarder/forwarder-tests.h"
 #include "util/util-tests.h"
 #include "schematized-trust/trust-schema-tests.h"
+#include "hmac/hmac-tests.h"
 
 static char test_passed_string[] = "(passed) ";
 static char test_failed_string[] = "[FAILED]----------------------------------------------> ";
@@ -37,6 +38,7 @@ int main(void) {
   bool forwarder_tests_result = run_forwarder_tests();
   bool util_tests_result = run_util_tests();
   bool schematized_trust_tests_result = run_trust_schema_tests();
+  bool hmac_tests_result = run_hmac_tests();
 
   printf("\n");
 
@@ -77,6 +79,8 @@ int main(void) {
   printf("%sutil_tests\n", result_string);
   result_string = schematized_trust_tests_result ? test_passed_string : test_failed_string;
   printf("%sschematized_trust_tests\n", result_string);
+  result_string = hmac_tests_result ? test_passed_string : test_failed_string;
+  printf("%shmac_tests_result\n", result_string);
 
   printf("\n");
 
@@ -94,7 +98,8 @@ int main(void) {
       metainfo_tests_result &&
       forwarder_tests_result &&
       util_tests_result &&
-      schematized_trust_tests_result) {
+      schematized_trust_tests_result &&
+      hmac_tests_result) {
       printf("ALL NDN-LITE OVER RIOT UNIT TESTS PASSED.\n");
   }
   else {
