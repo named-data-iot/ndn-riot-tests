@@ -59,7 +59,7 @@ void _run_signature_test(signature_test_t *test) {
 
   // signature init
   ndn_signature_t signature1;
-  ret_val = ndn_signature_init(&signature1);
+  ret_val = ndn_signature_init(&signature1, false);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_signature_test", "ndn_signature_init", ret_val);
     _all_function_calls_succeeded = false;
@@ -125,7 +125,7 @@ void _run_signature_test(signature_test_t *test) {
   }
 
   // signature value init
-  ret_val = ndn_signature_set_signature(&signature1, test->dummy_signature, test->dummy_signature_len);
+  ret_val = ndn_signature_set_signature_value(&signature1, test->dummy_signature, test->dummy_signature_len);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_signature_test", "ndn_signature_set_signature", ret_val);
     _all_function_calls_succeeded = false;
