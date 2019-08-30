@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 // returns true if all tests passed, false otherwise
 bool run_hmac_tests(void);
