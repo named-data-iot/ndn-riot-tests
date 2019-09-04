@@ -15,8 +15,8 @@
 
 #include "interest-tests.h"
 
-#define SECP160R1_PRV_KEY_SIZE 21
-#define SECP160R1_PUB_KEY_SIZE 40
+#define SECP256R1_PRV_KEY_SIZE 32
+#define SECP256R1_PUB_KEY_SIZE 64
 #define INTEREST_TEST_HMAC_KEY_SIZE 10
 
 #define INTEREST_NUM_TESTS 1
@@ -27,9 +27,9 @@ extern bool interest_test_results[INTEREST_NUM_TESTS];
 
 extern interest_test_t interest_tests[INTEREST_NUM_TESTS];
 
-extern const uint8_t interest_test_ecc_secp160r1_pub_key[SECP160R1_PUB_KEY_SIZE];
+extern const uint8_t interest_test_ecc_secp256r1_pub_key[SECP256R1_PUB_KEY_SIZE];
 
-extern const uint8_t interest_test_ecc_secp160r1_prv_key[SECP160R1_PRV_KEY_SIZE];
+extern const uint8_t interest_test_ecc_secp256r1_prv_key[SECP256R1_PRV_KEY_SIZE];
 
 extern const uint8_t interest_test_hmac_key[INTEREST_TEST_HMAC_KEY_SIZE];
 
