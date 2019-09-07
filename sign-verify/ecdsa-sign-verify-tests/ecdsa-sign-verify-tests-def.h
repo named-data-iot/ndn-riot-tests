@@ -18,7 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define ECDSA_SIGN_VERIFY_NUM_TESTS 20
+#define ECDSA_SIGN_VERIFY_NUM_TESTS 4
 
 extern char *ecdsa_sign_verify_test_names[ECDSA_SIGN_VERIFY_NUM_TESTS];
 

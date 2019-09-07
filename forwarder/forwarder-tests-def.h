@@ -17,8 +17,8 @@
 #include <stdbool.h>
 
 #define FORWARDER_NUM_TESTS 1
-#define SECP160R1_PRI_KEY_SIZE 21
-#define SECP160R1_PUB_KEY_SIZE 40
+#define SECP256R1_PRI_KEY_SIZE 32
+#define SECP256R1_PUB_KEY_SIZE 64
 
 extern char *forwarder_test_names[FORWARDER_NUM_TESTS];
 
@@ -26,8 +26,8 @@ extern bool forwarder_test_results[FORWARDER_NUM_TESTS];
 
 extern forwarder_test_t forwarder_tests[FORWARDER_NUM_TESTS];
 
-extern const uint8_t test_ecc_secp160r1_private_raw_1[SECP160R1_PRI_KEY_SIZE];
+extern const uint8_t test_ecc_secp256r1_private_raw_1[SECP256R1_PRI_KEY_SIZE];
 
-extern const uint8_t test_ecc_secp160r1_public_raw_1[SECP160R1_PUB_KEY_SIZE];
+extern const uint8_t test_ecc_secp256r1_public_raw_1[SECP256R1_PUB_KEY_SIZE];
 
 #endif // FORWARDER_TESTS_DEF_H

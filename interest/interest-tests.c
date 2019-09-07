@@ -40,7 +40,6 @@ void _run_interest_test(interest_test_t *test) {
   _all_function_calls_succeeded = true;
 
   int ret_val = -1;
-
   // tests start
   ndn_security_init();
 
@@ -171,10 +170,10 @@ void _test_ecdsa_signed_interest(ndn_name_t* name, ndn_name_t* identity, interes
   }
 
 
-  uint8_t pool[256];
+  uint8_t pool[500];
 
   ndn_encoder_t encoder;
-  encoder_init(&encoder, pool, 256);
+  encoder_init(&encoder, pool, 500);
   printf("\n***interest signing with ecdsa sig***\n");
   ret_val = ndn_signed_interest_ecdsa_sign(&interest, identity, &prv_key);
   if (ret_val != 0) {
@@ -231,7 +230,7 @@ void _test_hmac_signed_interest(ndn_name_t* name, ndn_name_t* identity, interest
   ndn_interest_set_MustBeFresh(&interest, 1);
   ndn_interest_set_CanBePrefix(&interest, 1);
 
-  uint8_t pool[256];
+  uint8_t pool[500];
 
   ndn_hmac_key_t hmac_key;
   ret_val = ndn_hmac_key_init(&hmac_key, test->hmac_key_val, test->hmac_key_len, 5678);
@@ -241,7 +240,7 @@ void _test_hmac_signed_interest(ndn_name_t* name, ndn_name_t* identity, interest
   }
 
   ndn_encoder_t encoder;
-  encoder_init(&encoder, pool, 256);
+  encoder_init(&encoder, pool, 500);
   printf("\n***interest signing with hmac sig***\n");
   ret_val = ndn_signed_interest_hmac_sign(&interest, identity, &hmac_key);
   if (ret_val != 0) {
@@ -285,10 +284,10 @@ void _test_digest_signed_interest(ndn_name_t* name)
   ndn_interest_set_MustBeFresh(&interest, 1);
   ndn_interest_set_CanBePrefix(&interest, 1);
 
-  uint8_t pool[256];
+  uint8_t pool[500];
 
   ndn_encoder_t encoder;
-  encoder_init(&encoder, pool, 256);
+  encoder_init(&encoder, pool, 500);
   printf("\n***interest signing with digest sig***\n");
   ret_val = ndn_signed_interest_digest_sign(&interest);
   if (ret_val != 0) {

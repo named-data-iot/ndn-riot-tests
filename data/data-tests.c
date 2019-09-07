@@ -32,7 +32,6 @@ bool run_data_tests(void) {
 }
 
 void _run_data_test(data_test_t *test) {
-
   _current_test_name = test->test_names[test->test_name_index];
   _all_function_calls_succeeded = true;
 
@@ -85,7 +84,6 @@ void _run_data_test(data_test_t *test) {
   // set metainfo
   ndn_metainfo_init(&data.metainfo);
   ndn_metainfo_set_content_type(&data.metainfo, NDN_CONTENT_TYPE_BLOB);
-
   // encoding digest
   encoder_init(&encoder, block_value, 1024);
   //printf("\n***data encoding with digest sig***\n");
@@ -117,7 +115,6 @@ void _run_data_test(data_test_t *test) {
 
   const uint8_t *prv_key_raw = test->ecc_prv_key;
   uint32_t prv_key_raw_size = test->ecc_prv_key_size;
-
   // encoding ecdsa
   ndn_ecc_prv_t prv_key;
   ret_val = ndn_ecc_prv_init(&prv_key, prv_key_raw, prv_key_raw_size, ndn_ecdsa_curve, 1234);
@@ -160,7 +157,6 @@ void _run_data_test(data_test_t *test) {
 
   const uint8_t *public = test->ecc_pub_key;
   uint32_t pub_size = test->ecc_pub_key_size;
-
   ndn_ecc_pub_t pub_key;
   ret_val = ndn_ecc_pub_init(&pub_key, public, pub_size, ndn_ecdsa_curve, 1234);
   if (ret_val != 0) {
@@ -257,7 +253,6 @@ void _run_data_test(data_test_t *test) {
   else {
     printf("In _run_data_test, decrypted text did not match original text.\n");
   }
-
   /* printf("\n***data content after parsing***\n"); */
   /* printf("data content block length: %d \n", data.content_size); */
   /* printf("data content block content: \n"); */
@@ -277,5 +272,4 @@ void _run_data_test(data_test_t *test) {
     printf("In _run_data_test, something went wrong.\n");
     *test->passed = false;
   }
-
 }

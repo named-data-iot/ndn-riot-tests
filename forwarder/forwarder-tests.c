@@ -48,7 +48,7 @@ on_data_callback(const uint8_t* data, uint32_t data_size, void* userdata)
   ndn_data_t data_check;
   ndn_ecc_pub_t pub_key;
   int result = ndn_ecc_pub_init(&pub_key, _forwarder_test_raw_pub_key_arr, _forwarder_test_raw_pub_key_arr_len,
-		   NDN_ECDSA_CURVE_SECP160R1, 1234);
+		   NDN_ECDSA_CURVE_SECP256R1, 1234);
   if (result != 0) {
     print_error(_current_test_name, "on_data_callback", "ndn_ecc_pub_init", result);
     _current_forwarder_test_all_calls_succeeded = false;
