@@ -13,10 +13,12 @@
 #include "../test-helpers.h"
 #include "ndn-lite/encode/data.h"
 #include "ndn-lite/security/ndn-lite-crypto-key.h"
+#include "ndn-lite/encode/key-storage.h"
 
 static const char *_current_test_name;
 static bool _all_function_calls_succeeded = true;
 static bool _decrypted_text_matched_original_text = false;
+static bool _decrypted_text_matched_original_key = false;
 static bool _encrypted_text_different_from_original_text = false;
 
 void _run_data_test(data_test_t *test);
@@ -208,12 +210,15 @@ void _run_data_test(data_test_t *test) {
 
   // Encrypted Data
   //printf("\n***Encrypted Data Tests*** \n");
-  ndn_aes_key_t aes;
-  ret_val = ndn_aes_key_init(&aes, aes_key_raw, aes_key_raw_size, 1234);
+  ndn_aes_key_t* aes;
+  ndn_key_storage_get_empty_aes_key(&aes);
+  ret_val = ndn_aes_key_init(aes, aes_key_raw, aes_key_raw_size, 1234);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_data_test", "ndn_aes_key_init", ret_val);
     _all_function_calls_succeeded = false;
   }
+  ndn_name_append_string_component(&identity, "KEY", strlen("KEY"));
+  ndn_name_append_keyid(&identity, 1234);
 
   /* printf("\n***data content before encryption with aes***\n"); */
   /* printf("data content block length: %d \n", data.content_size); */
@@ -222,7 +227,7 @@ void _run_data_test(data_test_t *test) {
   /*   printf("%d ", data.content_value[i]); */
   /* } */
   uint8_t *iv = test->iv;
-  ret_val = ndn_data_set_encrypted_content(&data, buf, sizeof(buf), &identity, iv, &aes);
+  ret_val = ndn_data_set_encrypted_content(&data, buf, sizeof(buf), &identity, iv, DATA_TEST_IV_SIZE);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_data_test", "ndn_data_set_encrypted_content", ret_val);
     _all_function_calls_succeeded = false;
@@ -239,9 +244,10 @@ void _run_data_test(data_test_t *test) {
   /*   printf("%d ", data.content_value[i]); */
   /* } */
 
+  ndn_name_t obtained_key_name;
   uint8_t decrypt_output[50] = {0};
   uint32_t used = 0;
-  ret_val = ndn_data_parse_encrypted_content(&data, decrypt_output, &used, &identity, iv, &aes);
+  ret_val = ndn_data_parse_encrypted_content(&data, decrypt_output, &used, &obtained_key_name);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_data_test", "ndn_data_parse_encrypted_content", ret_val);
     _all_function_calls_succeeded = false;
@@ -253,6 +259,12 @@ void _run_data_test(data_test_t *test) {
   else {
     printf("In _run_data_test, decrypted text did not match original text.\n");
   }
+  if (ndn_name_compare(&identity, &obtained_key_name) == 0) {
+    _decrypted_text_matched_original_key = true;
+  }
+  else {
+    printf("In _run_data_test, key name did not match original key name.\n");
+  }
   /* printf("\n***data content after parsing***\n"); */
   /* printf("data content block length: %d \n", data.content_size); */
   /* printf("data content block content: \n"); */
@@ -263,6 +275,7 @@ void _run_data_test(data_test_t *test) {
 
   if (_all_function_calls_succeeded &&
       _decrypted_text_matched_original_text &&
+      _decrypted_text_matched_original_key &&
       _encrypted_text_different_from_original_text
   )
   {
