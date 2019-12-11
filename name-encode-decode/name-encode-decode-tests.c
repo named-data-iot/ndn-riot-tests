@@ -40,6 +40,8 @@ void _run_name_encode_decode_test(name_encode_decode_test_t *test) {
   char comp1[] = "aaaaaa";
   name_component_t component;
   ret_val = name_component_from_string(&component, comp1, sizeof(comp1));
+  ret_val += name_component_from_version(&component, 255);
+  ret_val += name_component_from_timestamp(&component, 256);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_from_string", ret_val);
     _all_function_calls_succeeded = false;
@@ -52,26 +54,26 @@ void _run_name_encode_decode_test(name_encode_decode_test_t *test) {
   }
 
   // component encoding
-  name_component_block_t check_block;
+  uint8_t check_block[NDN_NAME_COMPONENT_BLOCK_SIZE];
   ndn_encoder_t comp_encoder;
-  encoder_init(&comp_encoder, check_block.value, NDN_NAME_COMPONENT_BLOCK_SIZE);
+  encoder_init(&comp_encoder, check_block, NDN_NAME_COMPONENT_BLOCK_SIZE);
   ret_val = name_component_tlv_encode(&comp_encoder, &component);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_tlv_encode", ret_val);
     _all_function_calls_succeeded = false;
   }
-  check_block.size = comp_encoder.offset;
   printf("\n***component encoding***\n");
   printf("check block length %u\n", comp_encoder.offset);
   printf("check block content\n");
   for (size_t i = 0; i < comp_encoder.offset; i++) {
-    printf("%d ", check_block.value[i]);
+    printf("%d ", check_block[i]);
   }
 
   // component decoding
   name_component_t check_component;
-  ret_val = name_component_from_block(&check_component, &check_block);
-  if (ret_val != 0) {
+  ret_val = name_component_from_block(&check_component, check_block, comp_encoder.offset);
+  uint64_t check_value = name_component_to_timestamp(&check_component);
+  if (ret_val != 0 || check_value != 256) {
     print_error(_current_test_name, "_run_name_encode_decode_test", "name_component_from_block", ret_val);
     _all_function_calls_succeeded = false;
   }
@@ -155,5 +157,4 @@ void _run_name_encode_decode_test(name_encode_decode_test_t *test) {
     printf("In _run_name_encode_decode_test, something went wrong.\n");
     *test->passed = false;
   }
-
 }
