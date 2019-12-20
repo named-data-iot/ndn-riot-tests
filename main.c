@@ -22,6 +22,7 @@ static char test_failed_string[] = "[FAILED]------------------------------------
 int main(void) {
 
   printf("RUNNING NDN-LITE OVER RIOT UNIT TESTS\n");
+  const char* result_string;
 
   bool aes_tests_result = run_aes_tests();
   bool service_discovery_tests_result = true; // run_service_discovery_tests();
@@ -44,9 +45,6 @@ int main(void) {
 
   printf("--------------------------------------------------------------------------------------\n");
   printf("\n");
-
-  const char* result_string;
-
   printf("RESULTS OF TESTS:\n\n");
 
   result_string = aes_tests_result ? test_passed_string : test_failed_string;

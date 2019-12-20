@@ -9,7 +9,6 @@
 #include "aes-tests.h"
 #include <stdio.h>
 #include <string.h>
-#include "aes-tests-def.h"
 #include "../print-helpers.h"
 #include "../test-helpers.h"
 #include "ndn-lite/security/ndn-lite-aes.h"
@@ -23,98 +22,95 @@ static uint8_t plain_text[PLAIN_TEXT_BUFFER_MAX_SIZE];
 static uint8_t cipher_text[CIPHER_TEXT_BUFFER_MAX_SIZE];
 
 static const char *_current_test_name;
-static bool _all_function_calls_succeeded = true;
-static bool _decrypted_text_matched_original_text = false;
-static bool _encrypted_text_different_from_original_text = false;
+static bool _test_success = true;
 
-void _run_aes_test(aes_test_t *test);
+bool _aes_test_case_1()
+{
+  // https://tools.ietf.org/html/rfc3602 Case #2
+  uint8_t key[] = {0xc2, 0x86, 0x69, 0x6d, 0x88, 0x7c, 0x9a, 0xa0, 0x61, 0x1b, 0xbb, 0x3e, 0x20, 0x25, 0xa4, 0x5a};
+  uint8_t iv[] = {0x56, 0x2e, 0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58};
+  uint8_t plain_text[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                          0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f};
+  uint8_t cipher_text[] = {0xd2, 0x96, 0xcd, 0x94, 0xc2, 0xcc, 0xcf, 0x8a, 0x3a, 0x86, 0x30, 0x28, 0xb5, 0xe1, 0xdc, 0x0a,
+                          0x75, 0x86, 0x60, 0x2d, 0x25, 0x3c, 0xff, 0xf9, 0x1b, 0x82, 0x66, 0xbe, 0xa6, 0xd6, 0x1a, 0xb1};
+  uint8_t output[256] = {0};
 
-bool run_aes_tests(void) {
-  memset(aes_test_results, 0, sizeof(bool)*AES_NUM_TESTS);
-  for (int i = 0; i < AES_NUM_TESTS; i++) {
-    _run_aes_test(&aes_tests[i]);
-  }
-
-  return check_all_tests_passed(aes_test_results, aes_test_names,
-                                AES_NUM_TESTS);
+  ndn_aes_key_t aes_key;
+  ndn_aes_key_init(&aes_key, key, sizeof(key), 123);
+  uint32_t used_size = 0;
+  int ret_val = ndn_aes_cbc_encrypt(plain_text, sizeof(plain_text), output, &used_size, iv, &aes_key);
+  return memcmp(cipher_text, output, used_size) == 0  && used_size == sizeof(cipher_text);
 }
 
-void _run_aes_test(aes_test_t *test) {
+bool _aes_test_case_2()
+{
+  // https://tools.ietf.org/html/rfc3602 Case #2
+  uint8_t key[] = {0xc2, 0x86, 0x69, 0x6d, 0x88, 0x7c, 0x9a, 0xa0, 0x61, 0x1b, 0xbb, 0x3e, 0x20, 0x25, 0xa4, 0x5a};
+  uint8_t iv[] = {0x56, 0x2e, 0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58};
+  uint8_t plain_text[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                          0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f};
+  uint8_t cipher_text[] = {0xd2, 0x96, 0xcd, 0x94, 0xc2, 0xcc, 0xcf, 0x8a, 0x3a, 0x86, 0x30, 0x28, 0xb5, 0xe1, 0xdc, 0x0a,
+                          0x75, 0x86, 0x60, 0x2d, 0x25, 0x3c, 0xff, 0xf9, 0x1b, 0x82, 0x66, 0xbe, 0xa6, 0xd6, 0x1a, 0xb1};
+  uint8_t output[256] = {0};
 
-  _current_test_name = test->test_names[test->test_name_index];
-  _all_function_calls_succeeded = true;
-
-  int ret_val = -1;
-
-  // tests start
-  ndn_security_init();
-
-  //puts("Test AES-CBC Mode");
-  ndn_security_init();
-
-  const uint8_t *data = test->data;
-  uint32_t data_size = test->data_size;
-  const uint8_t *key = test->key;
-  uint32_t key_size = test->key_size;
-  const uint8_t *iv = test->iv;
-
-  //initialize
-  /* uint32_t j = 0; */
-  /* printf("print raw data\n"); */
-  /* while (j < data_size) { */
-  /*   printf("0x%02x ", data[j++]); */
-  /* } */
-  /* putchar('\n'); */
-
-  // encrypt
-  uint32_t cipher_text_size = ndn_aes_probe_padding_size(data_size) + NDN_AES_BLOCK_SIZE;
   ndn_aes_key_t aes_key;
-  ndn_aes_key_init(&aes_key, key, key_size, 123);
-  ret_val = ndn_aes_cbc_encrypt(data, data_size, cipher_text, cipher_text_size, iv, &aes_key);
-  if (ret_val != 0) {
-    print_error(_current_test_name, "_run_aes_test", "ndn_aes_cbc_encrypt", ret_val);
-    _all_function_calls_succeeded = false;
-  }
-  /* printf("ciphertext after encryption\n"); */
-  /* j = 0; */
-  /* while (j < data_size + 16) { */
-  /* printf("0x%02x ", cipher_text[j++]); */
-  /* } */
-  /* putchar('\n'); */
-  // decrypt
+  ndn_aes_key_init(&aes_key, key, sizeof(key), 123);
+  uint32_t used_size = 0;
+  int ret_val = ndn_aes_cbc_decrypt(cipher_text, sizeof(cipher_text), output, &used_size, iv, &aes_key);
+  return memcmp(plain_text, output, used_size) == 0 && used_size == sizeof(plain_text);
+}
 
-  if (memcmp(cipher_text, data, data_size) != 0) {
-    _encrypted_text_different_from_original_text = true;
-  }
-  else {
-    printf("In _run_aes_test, the encrypted text was the same as the original text.\n");
-  }
-  ret_val = ndn_aes_cbc_decrypt(cipher_text, cipher_text_size, plain_text, sizeof(plain_text), iv, &aes_key);
-  if (ret_val != 0) {
-    print_error(_current_test_name, "_run_aes_test", "ndn_aes_cbc_decrypt", ret_val);
-    _all_function_calls_succeeded = false;
-  }
-  // print decrypted plain text
-  /* j = 0; */
-  /* printf("plaintext after decryption\n"); */
-  /* while(j < data_size){ */
-  /* printf("0x%02x ", plain_text[j++]); */
-  /* } */
+bool _aes_test_case_3()
+{
+  // encryption with padding
+  uint8_t key[] = {0xc2, 0x86, 0x69, 0x6d, 0x88, 0x7c, 0x9a, 0xa0, 0x61, 0x1b, 0xbb, 0x3e, 0x20, 0x25, 0xa4, 0x5a};
+  uint8_t iv[] = {0x56, 0x2e, 0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58};
+  uint8_t plain_text[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                          0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+                          0x00, 0x01, 0x02};
+  uint8_t cipher_text[] = {0xd2, 0x96, 0xcd, 0x94, 0xc2, 0xcc, 0xcf, 0x8a, 0x3a, 0x86, 0x30, 0x28, 0xb5, 0xe1, 0xdc, 0x0a,
+                           0x75, 0x86, 0x60, 0x2d, 0x25, 0x3c, 0xff, 0xf9, 0x1b, 0x82, 0x66, 0xbe, 0xa6, 0xd6, 0x1a, 0xb1,
+                           0xb0, 0xae, 0x85, 0x1d, 0x6f, 0x38, 0xc8, 0x01, 0x70, 0x88, 0xed, 0x52, 0x18, 0xe6, 0x97, 0x4e};
+  uint8_t output[256] = {0};
 
-  if (memcmp(plain_text, data, data_size) == 0) {
-    _decrypted_text_matched_original_text = true;
-  }
-  else {
-    printf("In _run_aes_test, the decrypted text did not match the original text.\n");
-  }
+  ndn_aes_key_t aes_key;
+  ndn_aes_key_init(&aes_key, key, sizeof(key), 123);
+  uint32_t used_size = 0;
+  int ret_val = ndn_aes_cbc_encrypt(plain_text, sizeof(plain_text), output, &used_size, iv, &aes_key);
+  return memcmp(cipher_text, output, used_size) == 0 && used_size == sizeof(cipher_text);
+}
 
-  if (_all_function_calls_succeeded &&
-      _decrypted_text_matched_original_text &&
-      _encrypted_text_different_from_original_text) {
-    *test->passed = true;
-  }
-  else {
-    printf("In _run_aes_test, something went wrong.\n");
-    *test->passed = false;
-  }
+bool _aes_test_case_4()
+{
+  // decryption with padding
+  uint8_t key[] = {0xc2, 0x86, 0x69, 0x6d, 0x88, 0x7c, 0x9a, 0xa0, 0x61, 0x1b, 0xbb, 0x3e, 0x20, 0x25, 0xa4, 0x5a};
+  uint8_t iv[] = {0x56, 0x2e, 0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58};
+  uint8_t plain_text[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                          0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+                          0x00, 0x01, 0x02};
+  uint8_t cipher_text[] = {0xd2, 0x96, 0xcd, 0x94, 0xc2, 0xcc, 0xcf, 0x8a, 0x3a, 0x86, 0x30, 0x28, 0xb5, 0xe1, 0xdc, 0x0a,
+                           0x75, 0x86, 0x60, 0x2d, 0x25, 0x3c, 0xff, 0xf9, 0x1b, 0x82, 0x66, 0xbe, 0xa6, 0xd6, 0x1a, 0xb1,
+                           0xb0, 0xae, 0x85, 0x1d, 0x6f, 0x38, 0xc8, 0x01, 0x70, 0x88, 0xed, 0x52, 0x18, 0xe6, 0x97, 0x4e};
+  uint8_t output[256] = {0};
+
+  ndn_aes_key_t aes_key;
+  ndn_aes_key_init(&aes_key, key, sizeof(key), 123);
+  uint32_t used_size = 0;
+  int ret_val = ndn_aes_cbc_decrypt(cipher_text, sizeof(cipher_text), output, &used_size, iv, &aes_key);
+  return memcmp(plain_text, output, used_size) == 0 && used_size == sizeof(plain_text);
+}
+
+bool run_aes_tests(void)
+{
+  _current_test_name = "AES CBC Test";
+  _test_success = true;
+
+  ndn_security_init();
+
+  _test_success = _test_success && _aes_test_case_1() && _aes_test_case_2() && _aes_test_case_3() && _aes_test_case_4();
+  if (_test_success)
+      printf("[%s] %s \n", "PASSED", _current_test_name);
+  else
+      printf("[%s] %s \n", "FAILED", _current_test_name);
+  return _test_success;
 }
