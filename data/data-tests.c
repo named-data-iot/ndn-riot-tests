@@ -210,8 +210,7 @@ void _run_data_test(data_test_t *test) {
 
   // Encrypted Data
   //printf("\n***Encrypted Data Tests*** \n");
-  ndn_aes_key_t* aes;
-  ndn_key_storage_get_empty_aes_key(&aes);
+  ndn_aes_key_t* aes = ndn_key_storage_get_empty_aes_key();
   ret_val = ndn_aes_key_init(aes, aes_key_raw, aes_key_raw_size, 1234);
   if (ret_val != 0) {
     print_error(_current_test_name, "_run_data_test", "ndn_aes_key_init", ret_val);
