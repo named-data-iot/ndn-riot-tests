@@ -20,7 +20,7 @@
 
 #include "../../ndn-lite/encode/name.h"
 #include "../../ndn-lite/ndn-error-code.h"
-#include "../../ndn-lite/security/ndn-trust-schema.h"
+#include "../../ndn-lite/app-support/ndn-trust-schema.h"
 #include "../../ndn-lite/encode/trust-schema/ndn-trust-schema-pattern-component.h"
 #include "../../ndn-lite/encode/ndn-rule-storage.h"
 
@@ -48,7 +48,7 @@ bool init_trust_schema_tests(void) {
     printf("In init_trust_schema_tests, ndn_trust_schema_rule_from_strings failed, return code: %d\n", ret_val);
     return false;
   }
-   
+
   ret_val = ndn_trust_schema_rule_from_strings(&author_rule,
   					       author_rule_data_pattern_string, strlen(author_rule_data_pattern_string),
   					       author_rule_key_pattern_string, strlen(author_rule_key_pattern_string));
@@ -96,21 +96,21 @@ bool init_trust_schema_tests(void) {
     printf("In init_trust_schema_tests, ndn_storage_add_rule failed, return code: %d\n", ret_val);
     return false;
   }
- 
+
   return true;
-  
+
 }
 
 bool run_trust_schema_tests(void) {
 
   if (!init_trust_schema_tests())
     return false;
-  
+
   memset(trust_schema_test_results, 0, sizeof(bool)*TRUST_SCHEMA_NUM_TESTS);
   for (int i = 0; i < TRUST_SCHEMA_NUM_TESTS; i++) {
     _run_trust_schema_test(&trust_schema_tests[i]);
   }
-  
+
   return check_all_tests_passed(trust_schema_test_results, trust_schema_test_names,
                                 TRUST_SCHEMA_NUM_TESTS);
 }
@@ -122,7 +122,7 @@ static ndn_name_t current_key_name;
 void _run_trust_schema_test(trust_schema_test_t *test) {
 
   _current_test_name = test->test_names[test->test_name_index];
-  
+
   int ret_val = -1;
 
   /* printf("Running trust schema test for following parameters:\n"); */
@@ -130,21 +130,21 @@ void _run_trust_schema_test(trust_schema_test_t *test) {
   /* printf("Rule key pattern: %.*s\n", test->rule_key_pattern_string_size, test->rule_key_pattern_string); */
   /* printf("Data name: %.*s\n", test->data_name_string_size, test->data_name_string); */
   /* printf("Key name: %.*s\n", test->key_name_string_size, test->key_name_string); */
-  
+
   ret_val = ndn_name_from_string(&current_data_name, test->data_name_string, test->data_name_string_size);
   if (ret_val != NDN_SUCCESS) {
     print_error(_current_test_name, "_run_trust_schema_test", "ndn_name_from_string", ret_val);
     *test->passed = false;
     return;
   }
-  
+
   ret_val = ndn_name_from_string(&current_key_name, test->key_name_string, test->key_name_string_size);
   if (ret_val != NDN_SUCCESS) {
     print_error(_current_test_name, "_run_trust_schema_test", "ndn_name_from_string", ret_val);
     *test->passed = false;
     return;
   }
-  
+
   ret_val = ndn_trust_schema_rule_from_strings(&current_rule,
   					       test->rule_data_pattern_string, test->rule_data_pattern_string_size,
   					       test->rule_key_pattern_string, test->rule_key_pattern_string_size);
@@ -165,7 +165,7 @@ void _run_trust_schema_test(trust_schema_test_t *test) {
     *test->passed = false;
     return;
   }
-  
+
   *test->passed = true;
-  
+
 }
