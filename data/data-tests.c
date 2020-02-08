@@ -12,7 +12,6 @@
 #include "../print-helpers.h"
 #include "../test-helpers.h"
 #include "ndn-lite/encode/data.h"
-#include "ndn-lite/security/ndn-lite-crypto-key.h"
 #include "ndn-lite/encode/key-storage.h"
 
 static const char *_current_test_name;
